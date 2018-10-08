@@ -4,27 +4,48 @@ output:
   html_document:
     keep_md: true
 ---
-```{r}
+
+```r
 library(chron)
 library(dplyr)
+```
+
+```
+## 
+## Attaching package: 'dplyr'
+```
+
+```
+## The following objects are masked from 'package:stats':
+## 
+##     filter, lag
+```
+
+```
+## The following objects are masked from 'package:base':
+## 
+##     intersect, setdiff, setequal, union
+```
+
+```r
 library(datasets)
 ```
 
 
 ## Loading and preprocessing the data
-```{r processing, echo=TRUE, cache=TRUE}
+
+```r
 zipF <- "activity.zip"
 unzipFolder <- "unzipfolder"
 unzip(zipF, exdir = unzipFolder)
 data <- read.csv(paste(unzipFolder, "/activity.csv", sep = ""))
 #data$steps <- data$steps %>% replace_na(0)
-
-
 ```
 
 
 ## What is mean total number of steps taken per day?
-```{r  Mean grouping by day, echo=TRUE}
+
+```r
 stepsPerDay <- aggregate(steps ~ date, data, sum)
 meanSteps <- mean(stepsPerDay$steps)
 medianSteps <- median(stepsPerDay$steps)
@@ -48,18 +69,19 @@ legend("topright",
                    paste("Mean   ", round(meanSteps, digits = 0))
                   )
 )
-
 ```
 
-The Mean steps taken by day is **`r as.integer(meanSteps)`**.
+![](PA1_template_files/figure-html/Mean grouping by day-1.png)<!-- -->
 
-The Median steps taken by day is **`r as.integer(medianSteps)`**.
+The Mean steps taken by day is **10766**.
+
+The Median steps taken by day is **10765**.
 
 
 ## What is the average daily activity pattern?
 
-```{r avg daily pattern}
 
+```r
 meanStepsPerInterval <- aggregate(steps ~ interval, data, mean)
 
 plot(
@@ -69,32 +91,39 @@ main = "Time Series Plot",
 xlab = "5-minute Interval",
 ylab = "Average Steps"
 )
-
 ```
+
+![](PA1_template_files/figure-html/avg daily pattern-1.png)<!-- -->
 
 #### Which 5-minute interval, on average across all the days in the dataset, contains the maximum number of steps?
 
 
-```{r}
+
+```r
 meanStepsPerInterval$interval[which.max(meanStepsPerInterval$steps)]
+```
+
+```
+## [1] 835
 ```
 
 ## Imputing missing values
 
-Total number of missing Values **`r sum(is.na(data$steps))`**
+Total number of missing Values **2304**
 
 
 
-```{r Filling missing values with interval mean}
+
+```r
 data_filled <-
         mutate(data,
         steps = if_else(condition = is.na(steps),
         meanStepsPerInterval$steps[which(meanStepsPerInterval$interval == interval)],
         as.double(steps)))
-        
 ```
 
-```{r filled data historgram}
+
+```r
 stepsPerDayFix <- aggregate(steps ~ date, data_filled, sum)
 meanStepsFix <- mean(stepsPerDayFix$steps)
 medianStepsFix <- median(stepsPerDayFix$steps)
@@ -118,14 +147,16 @@ legend("topright",
                    paste("Mean   ", round(meanStepsFix, digits = 0))
                   )
 )
-
 ```
+
+![](PA1_template_files/figure-html/filled data historgram-1.png)<!-- -->
 
 **We can see that the mean and the median has NOT changed because of the computed values.**
 
 ## Are there differences in activity patterns between weekdays and weekends?
 
-```{r additional comparison of historgrams week-weekends}
+
+```r
 data_filled$date <- as.Date(data_filled$date)
 data_filled <- mutate(data_filled, day = if_else(
                 !is.weekend(date),
@@ -198,10 +229,11 @@ legend("topleft",
                    paste("Mean   ", round(meanSteps, digits = 0))
                   )
 )
-
 ```
-```{r timeseries comparison week-weekends}
 
+![](PA1_template_files/figure-html/additional comparison of historgrams week-weekends-1.png)<!-- -->
+
+```r
 par(mfrow=c(2,1))
 meanStepsPerInterval <- aggregate(steps ~ interval, filter(.data = data_filled, as.integer(day) == 1), mean)
 
@@ -222,6 +254,8 @@ xlab = "5-minute Interval",
 ylab = "Avg Weekend Steps"
 )
 ```
+
+![](PA1_template_files/figure-html/timeseries comparison week-weekends-1.png)<!-- -->
 
 
 **We can definitely see lower average of steps by day over the weekends.**
