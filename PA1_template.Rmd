@@ -83,6 +83,7 @@ meanStepsPerInterval$interval[which.max(meanStepsPerInterval$steps)]
 
 Total number of missing Values **`r sum(is.na(data$steps))`**
 
+To fill the missing data the average steps for the interval will be used, this means, if the interval 835 is missing for a particular day, the average for that interval will be used.
 
 
 ```{r Filling missing values with interval mean}
